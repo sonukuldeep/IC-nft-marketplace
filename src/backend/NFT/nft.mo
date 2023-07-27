@@ -1,4 +1,5 @@
 import Principal "mo:base/Principal";
+import Debug "mo:base/Debug";
 
 actor class NFT(name : Text, owner : Principal, content : [Nat8]) {
   let itemName = name;
@@ -17,4 +18,5 @@ actor class NFT(name : Text, owner : Principal, content : [Nat8]) {
     return imageBytes;
   };
 
+  Debug.print("Hello");
 };
