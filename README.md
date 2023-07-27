@@ -1,105 +1,36 @@
+*This code is for educational purpose only and it has not been tested. Use at you own risk. 
+
 ![main-image](https://wsrv.nl/?url=repository-images.githubusercontent.com/282042743/9c891880-fdc0-11ea-8ccc-f3cd9c00e5ae&w=600)
 
-# Dfinity and Reactjs starter template
+# Create your very own NFT marketplace in IC
 
 Dfinity v0.18.0 and Reactjs v18.2.0
 
 ## Intro
 The DFINITY Foundation is a major contributor to the Internet Computer blockchain.
 
+## This repo follows Angella Yu's udemy course
+Lesson 435-444 and each branch is a chapter from her course.
+
+This repo uses updated packages and may slightly be different from the tutorial so as fix certain compactibility issues
+
 ## How to make it work?
 1. Install Nodejs v16.0.0 or higher.
 2. Follow [this link](https://internetcomputer.org/docs/current/tutorials/deploy_sample_app#step-1-install-the-internet-computer-ic-sdk) and install Internet computer SDK if you dont already have it.
 1. Clone this repo to your machine
-2. Rename project name as per your need. For example lets<br> assume you renamed your project to my_app then<br> change these folder names too
-```css
-src
-├── template_backend   --> my_app_backend
-└── template_frontend  --> my_app_frontend
-```
-5. Replace all instance of `template_backend` with `my_app_backend` within 'src/my_app_frontend/src/index.jsx' file.
-6. Replace all instance of `template_` with `my_app_` within 'dfx.json' file.
-7. Change `template_frontend` with `my_app_frontend` on line 10 within 'webpack.config.js' file. 
-
-or just save and run this bash file that does the samethings as described above
-```bash
-#!/bin/bash
-
-echo "Hello there!!"
-echo "Enter name of project folder (or press Enter for default):"
-read -e -i "Dfinity-reactjs" projectFolder
-
-if [ -d "$projectFolder" ]; then
-	echo "Folder exists."
-	echo "Enter desired project name"
-	read dpName
-
-	projectName="${dpName// /_}"
-	echo "New project name will be $projectName!"
-
-	if [ -f "$projectFolder/dfx.json" ]; then
-		sed -i 's/template_//g' "$projectFolder/dfx.json"
-		else
-			echo "$projectFolder/dfx.json not found"
-			exit 1
-	fi
-
-	if [ -f "$projectFolder/webpack.config.js" ]; then
-		sed -i '10s/template_frontend/frontend/g' "$projectFolder/webpack.config.js"
-		else
-			echo "$projectFolder/webpack.config.js not found"
-			exit 1
-	fi
-
-	if [ -f "$projectFolder/src/template_frontend/src/index.jsx" ]; then
-		sed -i 's/template_backend/backend/g' "$projectFolder/src/template_frontend/src/index.jsx"
-		else
-			echo "$projectFolder/src/template_frontend/src/index.jsx not found"
-			exit 1
-	fi
-
-	if [ -d "$projectFolder/src/template_backend" ]; then
-		mv $projectFolder/src/template_backend $projectFolder/src/backend 
-		else
-			echo "$projectFolder/src/template_backend not found"
-			exit 1
-	fi
-
-	if [ -d "$projectFolder/src/template_frontend" ]; then
-		mv $projectFolder/src/template_frontend $projectFolder/src/frontend 
-		else
-			echo "$projectFolder/src/template_frontend not found"
-			exit 1
-	fi
-
-
-	if [ "$projectFolder" != "$projectName" ]; then
-		mv $projectFolder $projectName
-	fi
-
-    else
-		echo "Folder does not exist."
-fi
-```
-
-## Running the project locally
-
-Test your project locally by using the following commands:
-
-```bash
-# Starts the replica, running in the background
-dfx start
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy # run from different terminal
-
-# Start react frontend with this command
-npm start
-```
-
-It will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+2. cd into project folder
+4. Run `dfx start` on a seperate terminal
+3. Run `npm i` to install all packages
+5. Run `dfx deploy` to generate all canisters and configurations
+5. Finally run `npm start` and open http://localhost:8080 on browser
 
 Enjoy :)
+
+> Deploy NFT canister using
+
+```js
+dfx deploy --argument='("CryptoDunks #123", principal "temrl-ptoir-cehov-rvau5-gfdoo-d3gfy-rzbsv-hdzlr-cmbrb-ehgk4-cae", (vec {137; 80; 78; 71; 13; 10; 26; 10; 0; 0; 0; 13; 73; 72; 68; 82; 0; 0; 0; 10; 0; 0; 0; 10; 8; 6; 0; 0; 0; 141; 50; 207; 189; 0; 0; 0; 1; 115; 82; 71; 66; 0; 174; 206; 28; 233; 0; 0; 0; 68; 101; 88; 73; 102; 77; 77; 0; 42; 0; 0; 0; 8; 0; 1; 135; 105; 0; 4; 0; 0; 0; 1; 0; 0; 0; 26; 0; 0; 0; 0; 0; 3; 160; 1; 0; 3; 0; 0; 0; 1; 0; 1; 0; 0; 160; 2; 0; 4; 0; 0; 0; 1; 0; 0; 0; 10; 160; 3; 0; 4; 0; 0; 0; 1; 0; 0; 0; 10; 0; 0; 0; 0; 59; 120; 184; 245; 0; 0; 0; 113; 73; 68; 65; 84; 24; 25; 133; 143; 203; 13; 128; 48; 12; 67; 147; 94; 97; 30; 24; 0; 198; 134; 1; 96; 30; 56; 151; 56; 212; 85; 68; 17; 88; 106; 243; 241; 235; 39; 42; 183; 114; 137; 12; 106; 73; 236; 105; 98; 227; 152; 6; 193; 42; 114; 40; 214; 126; 50; 52; 8; 74; 183; 108; 158; 159; 243; 40; 253; 186; 75; 122; 131; 64; 0; 160; 192; 168; 109; 241; 47; 244; 154; 152; 112; 237; 159; 252; 105; 64; 95; 48; 61; 12; 3; 61; 167; 244; 38; 33; 43; 148; 96; 3; 71; 8; 102; 4; 43; 140; 164; 168; 250; 23; 219; 242; 38; 84; 91; 18; 112; 63; 0; 0; 0; 0; 73; 69; 78; 68; 174; 66; 96; 130;}))' nft
+```
 
 ### Note on frontend environment variables
 
