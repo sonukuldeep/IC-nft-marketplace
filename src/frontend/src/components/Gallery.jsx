@@ -2,7 +2,6 @@ import React from "react";
 import Item from "./Item";
 
 function Gallery() {
-  //
   return (
     <div className="gallery-view">
       <h3 className="makeStyles-title-99 Typography-h3">Discover</h3>
