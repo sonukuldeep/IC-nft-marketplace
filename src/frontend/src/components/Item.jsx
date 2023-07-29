@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Actor, HttpAgent } from "@dfinity/agent"
-import { Principal } from "@dfinity/principal"
-import logo from "../../assets/logo.png";
 import { idlFactory } from "../../../declarations/nft"
 
 function Item(props) {
-  const id = Principal.fromText(props.id)
+  const id = props.id
   const localhost = 'http://localhost:8080/'
   const agent = new HttpAgent({ host: localhost })
   const [name, setName] = useState()

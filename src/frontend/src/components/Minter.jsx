@@ -72,6 +72,7 @@ function Minter() {
           Minter!
         </h3>
         <div className="horizontal-center">
+          {/* <Item id={'cbopz-duaaa-aaaaa-qaaka-cai'} /> */}
           <Item id={nftPrincipal} />
         </div>
       </div>
