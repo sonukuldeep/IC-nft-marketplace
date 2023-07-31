@@ -16,7 +16,7 @@ function Minter() {
     const imageByteData = [...new Uint8Array(imageArray)]
 
     let newNFT = await backend.mint(imageByteData, name)
-    setNftPrincipal(newNFT.toText())
+    setNftPrincipal(newNFT)
     setloaderHidden(true)
   }
 
