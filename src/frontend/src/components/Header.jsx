@@ -9,10 +9,13 @@ import { backend } from "../../../declarations/backend"
 
 function Header() {
   const [userNFTIds, setUserNFTIds] = useState([])
+  const [listingGallery, setListingGallery] = useState([])
 
   async function getNFTs() {
     const userNFTIds = await backend.getOwnedNFTs(CURRENT_USER_ID)
     setUserNFTIds(userNFTIds)
+    const listedNFTIds = await backend.getListedNFTs()
+    setListingGallery(listedNFTIds)
   }
 
   useEffect(() => {
@@ -20,7 +23,7 @@ function Header() {
   }, [])
 
   return (
-    <BrowserRouter forceRefresh={true}>
+    <BrowserRouter>
       <div className="app-root-1">
         <header className="Paper-root AppBar-root AppBar-positionStatic AppBar-colorPrimary Paper-elevation4">
           <div className="Toolbar-root Toolbar-regular header-appBar-13 Toolbar-gutters">
@@ -32,7 +35,7 @@ function Header() {
             </Link>
             <div className="header-empty-6"></div>
             <div className="header-space-8"></div>
-            <Link to="/discover">
+            <Link to="/discover" reloadDocument>
               <button className="ButtonBase-root Button-root Button-text header-navButtons-3">
                 Discover
               </button>
@@ -42,7 +45,7 @@ function Header() {
                 Minter
               </button>
             </Link>
-            <Link to="/collection">
+            <Link to="/collection" reloadDocument >
               <button className="ButtonBase-root Button-root Button-text header-navButtons-3">
                 My NFTs
               </button>
@@ -54,7 +57,7 @@ function Header() {
         <Route path="/" element={<img className="bottom-space" src={homeImage} />} />
         <Route path="/collection" element={<Gallery title="My NFTs" nftIds={userNFTIds} />} />
         <Route path="/minter" element={<Minter />} />
-        <Route path="/discover" element={<h1>Discover</h1>} />
+        <Route path="/discover" element={<Gallery title="Discover" nftIds={listingGallery} />} />
       </Routes>
     </BrowserRouter>
   );

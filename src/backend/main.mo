@@ -4,6 +4,7 @@ import NFTActorClass "./NFT/nft";
 import Cycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
 import List "mo:base/List";
+import Iter "mo:base/Iter";
 
 actor OpenD {
   private type Listing = {
@@ -75,5 +76,26 @@ actor OpenD {
     } else {
       return true;
     };
+  };
+
+  public func getListedNFTs() : async [Principal] {
+    let ids = Iter.toArray(mapOfListings.keys());
+    return ids;
+  };
+
+  public query func getOriginalOwner(id : Principal) : async Principal {
+    let listing = switch (mapOfListings.get(id)) {
+      case null return Principal.fromText("aaaaa-aa"); // empty string isn't a valid principal...https://forum.dfinity.org/t/the-replica-returned-an-error-code-5-message-canister-trapped-explicitly-rts-error-blob-of-principal-principal-too-short/16439
+      case (?result) result;
+    };
+    return listing.itemOwner;
+  };
+
+  public query func getListedPrice(id : Principal) : async Nat {
+    let listing = switch (mapOfListings.get(id)) {
+      case null return 0;
+      case (?result) result;
+    };
+    return listing.itemPrice;
   };
 };

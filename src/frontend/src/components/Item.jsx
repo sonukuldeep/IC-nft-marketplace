@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Actor, HttpAgent } from "@dfinity/agent"
 import { idlFactory } from "../../../declarations/nft"
-import { nft } from "../../../declarations/nft"
 import { backend } from "../../../declarations/backend"
-
 import Button from './Button';
 import CURRENT_USER_ID from '../index';
+import PriceLabel from './PriceLabel';
 
 function Item(props) {
   const id = props.id
+  const inCollections = props.page === "Discover"
   const localhost = 'http://localhost:8080/'
   const agent = new HttpAgent({ host: localhost })
   // remove when deploying on mainnet
@@ -17,11 +17,12 @@ function Item(props) {
   const [owner, setOwner] = useState()
   const [image, setImage] = useState()
   const [priceInput, setPriceInput] = useState("")
-  const [showSellInput, setShowSellInput] = useState(false)
   const [NFTActor, setNFTActor] = useState()
   const [loaderHidden, setLoaderHidden] = useState(true)
   const [btnActive, setBtnActive] = useState(true)
   const [blur, setBlur] = useState({})
+  const [showCollection, setShowCollection] = useState(false)
+  const [listedPrice, setListedPrice] = useState(0)
 
   async function loadNft() {
     const NFTActor = await Actor.createActor(idlFactory, { agent, canisterId: id })
@@ -31,16 +32,26 @@ function Item(props) {
     const imageData = await NFTActor.getAsset()
     const imageContent = new Uint8Array(imageData)
     const image = URL.createObjectURL(new Blob([imageContent.buffer, { type: "image/png" }]))
+
     const isListed = await backend.isListed(id)
+
+    const originalOwner = await backend.getOriginalOwner(id)
+
     if (isListed) {
-      setBlur({ filter: "blur(4px)" })
+      !inCollections && setBlur({ filter: "blur(4px)" })
       setOwner("OpenD")
       setBtnActive(false)
+      const listedPrice = await backend.getListedPrice(id)
+      console.log(listedPrice)
+      setListedPrice(listedPrice.toString())
     }
     else
       setOwner(owner.toText())
+
     setName(name)
     setImage(image)
+
+    setShowCollection(inCollections && originalOwner.toText() !== CURRENT_USER_ID.toText())
   }
 
   useEffect(() => { loadNft() }, [])
@@ -62,6 +73,10 @@ function Item(props) {
     }
   }
 
+
+  function handleBuy() {
+    console.log("buy")
+  }
   return (
     <div className="disGrid-item">
       <div className="disPaper-root disCard-root makeStyles-root-17 disPaper-elevation1 disPaper-rounded">
@@ -76,22 +91,16 @@ function Item(props) {
           <div></div>
         </div>
         <div className="disCardContent-root">
+          <PriceLabel sellPrice={listedPrice}/>
           <h2 className="disTypography-root makeStyles-bodyText-24 disTypography-h5 disTypography-gutterBottom">
             {name}<span className="purple-text"> {owner === "OpenD" ? "Listed" : ""}</span>
           </h2>
           <p className="disTypography-root makeStyles-bodyText-24 disTypography-body2 disTypography-colorTextSecondary">
             Owner: {owner}
           </p>
-          {showSellInput && btnActive &&
-            <input
-              placeholder="Price in DANG"
-              type="number"
-              className="price-input"
-              value={priceInput}
-              onChange={e => setPriceInput(e.target.value)}
-            />
-          }
-          {btnActive && <Button handleClick={showSellInput ? () => sellItem() : () => setShowSellInput(true)} text={showSellInput ? "Confirm" : "List NFT"} />}
+          {showCollection ?
+            <BuyOrSell functionToRun={handleBuy} btnText="Buy" price={priceInput} setPrice={setPriceInput} /> :
+            btnActive && <BuyOrSell functionToRun={sellItem} btnText="List NFT" price={priceInput} setPrice={setPriceInput} />}
         </div>
       </div>
     </div>
@@ -99,3 +108,27 @@ function Item(props) {
 }
 
 export default Item;
+
+function BuyOrSell({ functionToRun, btnText, price, setPrice }) {
+  const [showInput, setShowInput] = useState(false)
+  const [showText, setshowText] = useState(btnText)
+
+  function clickHandler() {
+    showInput && functionToRun()
+    setshowText("Confirm")
+    setShowInput(true)
+  }
+
+  return (
+    <>
+      {showInput && <input
+        placeholder="Price in DANG"
+        type="number"
+        className="price-input"
+        value={price}
+        onChange={e => setPrice(e.target.value)}
+      />}
+      <Button handleClick={clickHandler} text={showText} />
+    </>
+  )
+}
