@@ -78,6 +78,8 @@ function Item(props) {
 
 
   async function handleBuy() {
+    // i'm using one of my old repo for all token transfers
+    // https://github.com/sonukuldeep/token-on-ic/tree/lesson_445
     setLoaderHidden(false)
     console.log("buy triggered")
     const tokenActor = await Actor.createActor(tokenIdlFactory, {
