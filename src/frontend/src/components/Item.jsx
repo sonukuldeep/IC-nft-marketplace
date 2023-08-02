@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Actor, HttpAgent } from "@dfinity/agent"
 import { idlFactory } from "../../../declarations/nft"
+import { idlFactory as tokenIdlFactory } from "../../../declarations/token"
 import { backend } from "../../../declarations/backend"
 import Button from './Button';
 import CURRENT_USER_ID from '../index';
 import PriceLabel from './PriceLabel';
+import { Principal } from '@dfinity/principal';
 
 function Item(props) {
   const id = props.id
@@ -23,6 +25,8 @@ function Item(props) {
   const [blur, setBlur] = useState({})
   const [showCollection, setShowCollection] = useState(false)
   const [listedPrice, setListedPrice] = useState(0)
+  const [originalIdOfOwner, setOriginalIdOfOwner] = useState()
+  const [shouldDisplay, setShouldDisplay] = useState(true)
 
   async function loadNft() {
     const NFTActor = await Actor.createActor(idlFactory, { agent, canisterId: id })
@@ -36,13 +40,12 @@ function Item(props) {
     const isListed = await backend.isListed(id)
 
     const originalOwner = await backend.getOriginalOwner(id)
-
+    setOriginalIdOfOwner(originalOwner)
     if (isListed) {
       !inCollections && setBlur({ filter: "blur(4px)" })
       setOwner("OpenD")
       setBtnActive(false)
       const listedPrice = await backend.getListedPrice(id)
-      console.log(listedPrice)
       setListedPrice(listedPrice.toString())
     }
     else
@@ -74,11 +77,27 @@ function Item(props) {
   }
 
 
-  function handleBuy() {
-    console.log("buy")
+  async function handleBuy() {
+    setLoaderHidden(false)
+    console.log("buy triggered")
+    const tokenActor = await Actor.createActor(tokenIdlFactory, {
+      agent,
+      canisterId: Principal.fromText("aax3a-h4aaa-aaaaa-qaahq-cai")
+    })
+
+    const sellerId = originalIdOfOwner
+    const itemPrice = Number(listedPrice)
+
+    const result = await tokenActor.transfer(sellerId, itemPrice)
+    if (result === "Success") {
+      const result = await backend.completePurchase(id, sellerId, CURRENT_USER_ID)
+      console.log(result)
+    }
+    setLoaderHidden(true)
+    setShouldDisplay(false)
   }
   return (
-    <div className="disGrid-item">
+    <div style={{ display: shouldDisplay ? "inline" : "none" }} className="disGrid-item">
       <div className="disPaper-root disCard-root makeStyles-root-17 disPaper-elevation1 disPaper-rounded">
         <img
           className="disCardMedia-root makeStyles-image-19 disCardMedia-media disCardMedia-img"
@@ -91,7 +110,7 @@ function Item(props) {
           <div></div>
         </div>
         <div className="disCardContent-root">
-          <PriceLabel sellPrice={listedPrice}/>
+          <PriceLabel sellPrice={listedPrice} />
           <h2 className="disTypography-root makeStyles-bodyText-24 disTypography-h5 disTypography-gutterBottom">
             {name}<span className="purple-text"> {owner === "OpenD" ? "Listed" : ""}</span>
           </h2>
@@ -99,7 +118,7 @@ function Item(props) {
             Owner: {owner}
           </p>
           {showCollection ?
-            <BuyOrSell functionToRun={handleBuy} btnText="Buy" price={priceInput} setPrice={setPriceInput} /> :
+            <Button handleClick={handleBuy} text={"Buy"} /> :
             btnActive && <BuyOrSell functionToRun={sellItem} btnText="List NFT" price={priceInput} setPrice={setPriceInput} />}
         </div>
       </div>
